@@ -63,7 +63,7 @@ This is an [Expo](https://expo.dev) SDK 56 project created with [`create-expo-ap
 
    Open the **Capture** tab, grant camera and microphone, and confirm the green **Record-ready** pill (target ≤2s, max ≤5s per `docs/product/capture.md`).
 
-   **After US-002+ native deps** (`expo-file-system`, `expo-haptics`, `expo-video-thumbnails`): rebuild the dev client so native modules are linked — otherwise clip save and thumbnails still work, but haptics/thumbnail previews are skipped until you run `eas build` or `expo run:android` / `expo run:ios` again.
+   **After US-002+ native deps** (`expo-file-system`, `expo-haptics`, `expo-video-thumbnails`, `expo-secure-store`): rebuild the dev client so native modules are linked. Until then the app still runs with degraded behavior (no JPEG thumbs, in-memory auth session on stale builds). Run `eas build` or `expo run:android` / `expo run:ios` again.
 
    EAS config: [`eas.json`](eas.json). Native permissions: [`app.json`](app.json) `expo-camera` plugin.
 
