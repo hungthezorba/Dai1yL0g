@@ -77,6 +77,7 @@ Read to leave useful evidence for the next agent and for benchmark scoring.
 | Document Or Source | Tiny | Normal | High-Risk |
 | --- | --- | --- | --- |
 | `docs/TRACE_SPEC.md` | Should | Must | Must |
+| `docs/COMMIT_CONVENTIONS.md` | Skip | Must when story reaches implemented | Must when story reaches implemented |
 | `scripts/bin/harness-cli query matrix` | Should | Must | Must |
 | `scripts/bin/harness-cli query backlog` | Skip | Should if friction occurred | Must |
 | Changed-file list from `git status --short` | Must | Must | Must |
@@ -98,6 +99,7 @@ Read to leave useful evidence for the next agent and for benchmark scoring.
 | Task makes a maturity, observability, trace quality, or benchmark claim | Read `docs/HARNESS_COMPONENTS.md`, `docs/HARNESS_MATURITY.md`, and `docs/TRACE_SPEC.md`. |
 | Task is normal or high-risk and spans multiple iterations | Create or update a story/progress file under `docs/stories/` and keep it current. |
 | Final response is being prepared | Re-read the validation evidence, `git status --short`, and `docs/TRACE_SPEC.md` before recording the final trace. |
+| User story marked **`implemented`** | Read `docs/COMMIT_CONVENTIONS.md`, commit, push to `main`, note SHA in story evidence and final response. |
 
 ## Token Budget Guidance
 

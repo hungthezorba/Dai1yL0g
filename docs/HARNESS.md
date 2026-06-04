@@ -226,6 +226,27 @@ For every task:
    trace meets the linked intake lane requirement.
 9. If harness friction was found, either fix it directly or record it with
    `scripts/bin/harness-cli backlog add`.
+10. When a **user story** is **`implemented`**, commit and push to **`main`**
+    per `docs/COMMIT_CONVENTIONS.md` (after validation and trace).
+
+## Story Completion (Git)
+
+When `docs/stories/US-XXX-*.md` (or the durable story row) reaches **`implemented`**:
+
+```text
+validate → update story + matrix → harness trace → commit → push main
+```
+
+Agents must:
+
+1. Stage only files belonging to the story (product code, tests, story packet,
+   decisions, harness docs touched for that story).
+2. Write the commit message using `docs/COMMIT_CONVENTIONS.md` and reference
+   `US-XXX` in the subject or `Refs:` footer.
+3. Push to **`origin main`** without force-push unless the human explicitly
+   directs otherwise.
+
+WIP or blocked stories must not be pushed to `main` as completion work.
 
 ## Harness Change Policy
 
@@ -257,6 +278,8 @@ A task is done only when:
 - A trace has been recorded with `scripts/bin/harness-cli trace`.
 - Missing harness capabilities were recorded with
   `scripts/bin/harness-cli backlog add`.
+- For **implemented user stories**: changes are **committed** and **pushed to
+  `main`** per `docs/COMMIT_CONVENTIONS.md` (commit SHA noted in the response).
 - The final response says what changed and what was not attempted.
 
 ## Future Validation Ladder

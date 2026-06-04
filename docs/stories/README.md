@@ -33,7 +33,7 @@ docs/stories/epics/E02-risky-domain/US-012-risky-story-title/
 ## Status Flow
 
 ```text
-planned -> in_progress -> implemented
+planned -> in_progress -> implemented -> commit + push main
                   |
                   v
                changed
@@ -41,3 +41,6 @@ planned -> in_progress -> implemented
                   v
                retired
 ```
+
+When a story is **`implemented`**, agents also commit and push to **`main`** per
+`docs/COMMIT_CONVENTIONS.md` (after validation and a harness trace).

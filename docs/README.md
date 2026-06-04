@@ -6,6 +6,7 @@ future user-provided spec.
 ## Main Files
 
 - `HARNESS.md`: how humans and agents collaborate.
+- `COMMIT_CONVENTIONS.md`: commit message format and push-to-`main` after implemented stories.
 - `FEATURE_INTAKE.md`: how prompts become tiny, normal, or high-risk work.
 - `ARCHITECTURE.md`: architecture discovery and boundary rules.
 - `TEST_MATRIX.md`: legacy proof map; current proof status is queried with

@@ -48,3 +48,11 @@ Document any harness updates made or proposed because of this story.
 ## Evidence
 
 Add commands, reports, screenshots, or links after validation exists.
+
+## Ship (Git)
+
+When status is **`implemented`**:
+
+- Commit per `docs/COMMIT_CONVENTIONS.md` (reference `US-XXX`).
+- Push to **`origin main`**.
+- Record commit SHA here, e.g. `abc1234 feat(capture): US-002 …`.

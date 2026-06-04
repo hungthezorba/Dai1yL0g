@@ -13,6 +13,7 @@ This repo uses Harness. Before work, read:
 - `docs/FEATURE_INTAKE.md`
 - `docs/ARCHITECTURE.md`
 - `docs/CONTEXT_RULES.md`
+- `docs/COMMIT_CONVENTIONS.md` (before committing; required when finishing an implemented user story)
 - `scripts/bin/harness-cli query matrix`
 
 Use the Rust Harness CLI at `scripts/bin/harness-cli` as the main operational
