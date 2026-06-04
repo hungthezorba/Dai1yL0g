@@ -7,6 +7,7 @@ import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/features/auth/auth-context';
 import { AuthColors } from '@/features/auth/design-tokens';
 import { getDeviceTimezone } from '@/features/auth/device-timezone';
+import { getGoogleProfilePrefill } from '@/features/auth/google-prefill';
 import { upsertProfile } from '@/features/auth/profile-service';
 
 import { AuthScreenShell } from './auth-screen-shell';
@@ -15,15 +16,16 @@ export function ProfileSetupScreen() {
   const router = useRouter();
   const { session, refreshProfile } = useAuth();
   const defaultTimezone = useMemo(() => getDeviceTimezone(), []);
+  const googlePrefill = useMemo(() => getGoogleProfilePrefill(session), [session]);
 
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, setDisplayName] = useState(googlePrefill.displayName);
   const [username, setUsername] = useState('');
   const [birthYear, setBirthYear] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   if (!session?.user.id) {
-    router.replace('/(auth)/phone');
+    router.replace('/(auth)/sign-in');
     return null;
   }
 
@@ -36,6 +38,7 @@ export function ProfileSetupScreen() {
         username,
         timezone: defaultTimezone,
         birthYear: Number(birthYear),
+        avatarUrl: googlePrefill.avatarUrl,
       });
       await refreshProfile();
       router.replace('/(app)');

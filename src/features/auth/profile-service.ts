@@ -28,6 +28,7 @@ export async function upsertProfile(userId: string, input: ProfileSetupInput): P
     username: parsed.username,
     timezone: parsed.timezone,
     birth_year: parsed.birthYear,
+    avatar_url: parsed.avatarUrl ?? null,
   };
 
   const { data, error } = await supabase.from('profiles').upsert(payload).select('*').single();

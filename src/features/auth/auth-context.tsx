@@ -20,8 +20,6 @@ type AuthContextValue = {
   loading: boolean;
   session: Session | null;
   profile: UserProfile | null;
-  phonePending: string | null;
-  setPhonePending: (phone: string | null) => void;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -33,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(configured);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [phonePending, setPhonePending] = useState<string | null>(null);
 
   const refreshProfile = useCallback(async () => {
     const userId = session?.user.id;
@@ -86,7 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await authSignOut();
-    setPhonePending(null);
     setProfile(null);
     setSession(null);
   }, []);
@@ -97,12 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       session,
       profile,
-      phonePending,
-      setPhonePending,
       refreshProfile,
       signOut,
     }),
-    [configured, loading, session, profile, phonePending, refreshProfile, signOut],
+    [configured, loading, session, profile, refreshProfile, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

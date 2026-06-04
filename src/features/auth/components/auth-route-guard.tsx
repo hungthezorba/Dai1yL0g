@@ -20,7 +20,7 @@ export function AuthRouteGuard() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!session && !inAuthGroup) {
-      router.replace('/(auth)/phone');
+      router.replace('/(auth)/sign-in');
       return;
     }
 

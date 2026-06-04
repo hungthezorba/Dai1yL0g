@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 
-import { AuthSetupScreen } from '@/features/auth/components/auth-setup-screen';
 import { useAuth } from '@/features/auth/auth-context';
+import { AuthSetupScreen } from '@/features/auth/components/auth-setup-screen';
 
 export default function AuthLayout() {
   const { configured } = useAuth();
@@ -12,8 +12,7 @@ export default function AuthLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="phone" />
-      <Stack.Screen name="verify" />
+      <Stack.Screen name="sign-in" />
       <Stack.Screen name="profile" />
     </Stack>
   );

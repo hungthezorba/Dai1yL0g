@@ -12,4 +12,5 @@ export type ProfileSetupInput = {
   username: string;
   timezone: string;
   birthYear: number;
+  avatarUrl?: string | null;
 };

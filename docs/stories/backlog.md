@@ -24,7 +24,7 @@ Initiative: `docs/stories/initiatives/I01-dai1yl0g-mvp.md`
 | --- | --- | --- | --- |
 | US-001 | Dev build + camera smoke | E02 | normal |
 | US-002 | Local clip + day bucket UI | E03 | normal |
-| US-003 | Auth + profile | E01 | high-risk (auth) |
+| US-003 | Auth + profile (Google SSO) | E01 | high-risk (auth) |
 | US-004 | Upload + compression | E02 | normal |
 | US-005 | On-device stitch proof | E04 | high-risk (media) |
 | US-006 | Friend graph | E01 | high-risk (authz) |

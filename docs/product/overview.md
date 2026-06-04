@@ -64,7 +64,7 @@ Compiled vlog → save to camera roll OR share sheet (Instagram, TikTok, etc.)
 
 **In scope**
 
-- Phone-number or email auth (single account per device at MVP).
+- Google SSO sign-in (Supabase Auth); additional providers post-MVP.
 - Mutual friends, private friend feed of clips.
 - Quick capture (3–10s configurable cap).
 - Per-day clip bucket in user's timezone.

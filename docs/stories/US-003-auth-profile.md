@@ -10,42 +10,49 @@ high-risk (auth)
 
 ## Product Contract
 
-Phone OTP sign-in via Supabase Auth, minimal profile onboarding (`displayName`, `username`, `timezone`, `birthYear`), session persisted across app restarts. Authenticated users with a complete profile land on **Capture**; others see auth/onboarding screens.
+**Google SSO** sign-in via Supabase Auth, minimal profile onboarding (`displayName`, `username`, `timezone`, `birthYear`), session persisted across app restarts. Authenticated users with a complete profile land on **Capture**; others see auth/onboarding screens.
 
 ## Relevant Product Docs
 
 - `docs/product/accounts.md`
 - `docs/product/data-model.md`
+- `docs/decisions/0009-google-sso-primary-auth.md`
 
 ## Acceptance Criteria
 
-- [x] Supabase client with secure session storage (`expo-secure-store`).
-- [x] Phone OTP start + verify flow (parse-first validation at client boundary).
+- [x] Supabase client with secure session storage (`expo-secure-store` or in-memory fallback on stale dev builds).
+- [x] Google OAuth sign-in (`signInWithOAuth` + in-app browser redirect).
 - [x] Profile setup screen; profile row in `profiles` table (SQL in `supabase/migrations/`).
-- [x] Auth gate: no session → phone; session without profile → profile setup; complete → `(app)` capture.
+- [x] Auth gate: no session → sign-in; session without profile → profile setup; complete → `(app)` capture.
 - [x] Session restore on cold start without re-login when refresh token valid.
-- [x] `.env.example` documents required Supabase env vars.
+- [x] `.env.example` documents Supabase env vars and Google provider setup.
 
 ## Design Notes
 
 - Feature: `src/features/auth/`
-- UI tokens: `src/features/auth/design-tokens.ts` (rose + friendly, aligned with capture).
-- Infrastructure: `src/infrastructure/supabase/client.ts`
-- Routes: `src/app/(auth)/*`, `src/app/(app)/*`
+- Routes: `src/app/(auth)/sign-in`, `profile`; removed phone/OTP screens.
+- Prefill `displayName` / `avatarUrl` from Google `user_metadata` when available.
+
+## Change Log
+
+| Date | Change |
+| --- | --- |
+| 2026-06-01 | Replaced phone OTP with Google SSO per decision 0009. |
 
 ## Validation
 
 | Layer | Expected proof |
 | --- | --- |
 | Unit | `scripts/test-auth-schemas.mjs` |
-| Integration | Manual Supabase project + OTP verify + profile upsert |
+| Integration | Manual: Supabase Google provider + OAuth redirect + profile upsert |
 | E2E | — |
-| Platform | Dev build: cold start → still signed in; new user → OTP → profile → camera |
+| Platform | Dev build: Google sign-in → profile → Capture; cold start session restore |
 
 ## Harness Delta
 
 - `supabase/migrations/001_profiles.sql`
 - `.env.example`
+- `docs/decisions/0009-google-sso-primary-auth.md`
 
 ## Evidence
 
@@ -53,7 +60,7 @@ Phone OTP sign-in via Supabase Auth, minimal profile onboarding (`displayName`, 
 npm run validate:quick
 ```
 
-Integration: configure `.env` from `.env.example`, run SQL migration, enable Phone auth in Supabase dashboard, complete OTP → profile → Capture tab.
+Integration: enable Google in Supabase; add OAuth redirect URLs; sign in → profile → Capture.
 
 ## Ship (Git)
 

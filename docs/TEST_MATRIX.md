@@ -18,7 +18,7 @@ Maps product behavior to proof. All rows are **planned** until implementation an
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | US-001 | Camera opens record-ready | yes | no | no | yes | implemented | `npm run validate:quick`; manual dev-build smoke |
 | US-002 | Clip saved to day bucket locally | yes | no | no | yes | implemented | `npm run validate:quick`; manual record → timeline |
-| US-003 | OTP auth + profile | yes | yes | yes | no | implemented | `npm run validate:quick`; manual Supabase OTP + profile |
+| US-003 | Google SSO + profile | yes | yes | yes | no | implemented | `npm run validate:quick`; manual Google OAuth + profile |
 | US-004 | Clip upload w/ compression | yes | yes | no | yes | planned | none |
 | US-005 | 3-clip stitch w/ audio | yes | no | no | yes | planned | none |
 | US-006 | Mutual friends ACL | yes | yes | no | no | planned | none |

@@ -24,7 +24,7 @@ The repository already contains an **Expo SDK 56** React Native app (`dai1yl0g`)
 ### Backend (MVP)
 
 - **Supabase** as primary BaaS:
-  - Auth: phone OTP (Supabase Auth)
+  - Auth: Google SSO via Supabase Auth (see `docs/decisions/0009-google-sso-primary-auth.md`)
   - Database: Postgres (social graph, days, clips metadata, messages)
   - Storage: S3-compatible buckets for clips and vlogs
   - Realtime: feed and chat subscriptions
