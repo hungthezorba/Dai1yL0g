@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { useAuth } from '@/features/auth/auth-context';
-import { getClipById, listClipsPendingUpload } from '@/features/clip/clip-repository';
+import { sanitizeClipsBeforeUpload } from '@/features/clip/clip-upload-prep';
+import { getClipById } from '@/features/clip/clip-repository';
 import { uploadClipWithRetry } from '@/features/clip/clip-upload-service';
 import { clipUploadLog } from '@/features/clip/upload-logger';
 import { isSupabaseConfigured } from '@/infrastructure/supabase/client';
@@ -46,8 +47,9 @@ export function useClipUploadQueue({ onClipUpdated, active = true }: UseClipUplo
     try {
       do {
         rerunRequestedRef.current = false;
-        const pending = await listClipsPendingUpload();
+        const pending = await sanitizeClipsBeforeUpload();
         clipUploadLog.info('queue drain', { count: pending.length, clipIds: pending.map((c) => c.id) });
+        onClipUpdated();
 
         for (const clip of pending) {
           try {

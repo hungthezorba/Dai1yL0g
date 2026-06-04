@@ -1,3 +1,4 @@
+import { isValidClientClipId } from '../src/features/clip/clip-id.ts';
 import { CLIP_UPLOAD_PROFILE, CLIPS_STORAGE_BUCKET } from '../src/features/clip/upload-profile.ts';
 import { shouldRetryUpload, uploadRetryDelayMs } from '../src/features/clip/upload-retry.ts';
 import { clipRowSchema } from '../src/features/clip/schemas.ts';
@@ -11,6 +12,9 @@ function assert(condition, message) {
 
 const userId = '550e8400-e29b-41d4-a716-446655440000';
 const clipId = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+
+assert(isValidClientClipId(clipId), 'valid uuid clip id');
+assert(!isValidClientClipId('clip-1780395340384-mp8ywu1'), 'reject legacy clip- prefix id');
 
 assert(CLIPS_STORAGE_BUCKET === 'clips', 'clips bucket name');
 assert(`${userId}/${clipId}.mp4` === `${userId}/${clipId}.mp4`, 'video storage key shape');

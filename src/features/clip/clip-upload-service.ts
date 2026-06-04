@@ -2,9 +2,13 @@ import { decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system/legacy';
 
 import { getSupabaseClient, isSupabaseConfigured } from '@/infrastructure/supabase/client';
-import { compressClipForUpload, deleteStagingUploadFile } from '@/infrastructure/media/clip-compressor';
+import {
+  compressClipForUpload,
+  deleteTempUploadFile,
+} from '@/infrastructure/media/clip-compressor';
 
 import { getClipById, updateClipInIndex } from './clip-repository';
+import { isValidClientClipId } from './clip-id';
 import { clipInsertResponseSchema } from './schemas';
 import type { LocalClip } from './types';
 import { clipUploadLog } from './upload-logger';
@@ -31,6 +35,9 @@ function toUserUploadMessage(error: unknown): string {
         ? error.message
         : 'Could not post clip.';
 
+  if (raw.includes('invalid input syntax for type uuid') || raw.includes('22P02')) {
+    return 'Old clip — record a new one (this clip id is invalid).';
+  }
   if (raw.includes('schema cache') || raw.includes('relation') || raw.includes('does not exist')) {
     return 'Server not ready — run supabase/migrations/002_clips_storage.sql in Supabase.';
   }
@@ -40,13 +47,16 @@ function toUserUploadMessage(error: unknown): string {
   if (raw.includes('mime type') || raw.includes('not supported')) {
     return 'Upload rejected — check clips bucket allows video/mp4.';
   }
+  if (raw.includes('file missing')) {
+    return 'Clip file missing — record again.';
+  }
   return raw;
 }
 
 async function assertLocalFileReadable(uri: string, label: string): Promise<number> {
   const info = await FileSystem.getInfoAsync(uri);
   if (!info.exists) {
-    throw new ClipUploadError(`${label} file missing at ${uri}`, 'UPLOAD_FAILED');
+    throw new ClipUploadError(`${label} file missing`, 'UPLOAD_FAILED');
   }
   const size = 'size' in info && typeof info.size === 'number' ? info.size : 0;
   clipUploadLog.info(`${label} file ok`, { uri, bytes: size });
@@ -91,6 +101,10 @@ async function uploadStorageObject(
 }
 
 async function findExistingRemoteClip(clientClipId: string, userId: string) {
+  if (!isValidClientClipId(clientClipId)) {
+    return null;
+  }
+
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from('clips')
@@ -142,6 +156,7 @@ async function markClipPosted(clip: LocalClip, remoteId: string): Promise<LocalC
     uploadState: 'posted',
     remoteId,
     uploadError: undefined,
+    uploadAttempt: 0,
   });
 }
 
@@ -180,8 +195,15 @@ async function logAuthContext(userId: string): Promise<void> {
   }
 }
 
-export async function uploadClip(clip: LocalClip, userId: string): Promise<LocalClip> {
-  const attempt = (clip.uploadAttempt ?? 0) + 1;
+export async function uploadClip(
+  clip: LocalClip,
+  userId: string,
+  attempt: number,
+): Promise<LocalClip> {
+  if (!isValidClientClipId(clip.id)) {
+    throw new ClipUploadError('Old clip id — record a new clip.', 'UPLOAD_FAILED');
+  }
+
   clipUploadLog.info('uploadClip start', {
     clipId: clip.id,
     attempt,
@@ -191,7 +213,8 @@ export async function uploadClip(clip: LocalClip, userId: string): Promise<Local
 
   let working = await markClipUploading(clip, attempt);
 
-  let stagingPath: string | undefined;
+  let tempUri: string | undefined;
+  const sourceUri = clip.localPath;
   try {
     if (!isSupabaseConfigured()) {
       throw new ClipUploadError('Supabase is not configured.', 'NOT_CONFIGURED');
@@ -201,7 +224,7 @@ export async function uploadClip(clip: LocalClip, userId: string): Promise<Local
     }
 
     await logAuthContext(userId);
-    await assertLocalFileReadable(clip.localPath, 'source');
+    await assertLocalFileReadable(sourceUri, 'source');
 
     const existing = await findExistingRemoteClip(clip.id, userId);
     if (existing?.upload_state === 'posted') {
@@ -210,16 +233,20 @@ export async function uploadClip(clip: LocalClip, userId: string): Promise<Local
       return working;
     }
 
-    stagingPath = await compressClipForUpload(clip.localPath, clip.id);
-    await assertLocalFileReadable(stagingPath, 'staging');
+    const { uploadUri, tempUri: compressorTemp } = await compressClipForUpload(sourceUri, clip.id);
+    tempUri = compressorTemp;
+    await assertLocalFileReadable(uploadUri, 'upload');
 
     const videoKey = clipVideoStorageKey(userId, clip.id);
-    await uploadStorageObject(videoKey, stagingPath, 'video/mp4');
+    await uploadStorageObject(videoKey, uploadUri, 'video/mp4');
 
     let thumbnailKey: string | null = null;
     if (working.thumbnailPath) {
-      thumbnailKey = clipThumbnailStorageKey(userId, clip.id);
-      await uploadStorageObject(thumbnailKey, working.thumbnailPath, 'image/jpeg');
+      const thumbInfo = await FileSystem.getInfoAsync(working.thumbnailPath);
+      if (thumbInfo.exists) {
+        thumbnailKey = clipThumbnailStorageKey(userId, clip.id);
+        await uploadStorageObject(thumbnailKey, working.thumbnailPath, 'image/jpeg');
+      }
     }
 
     const row = await insertClipRow(working, userId, videoKey, thumbnailKey);
@@ -232,7 +259,7 @@ export async function uploadClip(clip: LocalClip, userId: string): Promise<Local
     working = await markClipFailed(working, message, attempt);
     throw err instanceof ClipUploadError ? err : new ClipUploadError(message, 'UPLOAD_FAILED');
   } finally {
-    await deleteStagingUploadFile(stagingPath);
+    await deleteTempUploadFile(tempUri, sourceUri);
   }
 }
 
@@ -241,17 +268,19 @@ export async function uploadClipWithRetry(clip: LocalClip, userId: string): Prom
 
   for (let attempt = 1; attempt <= MAX_UPLOAD_ATTEMPTS; attempt++) {
     const refreshed = await getClipById(clip.id);
-    const current = refreshed ?? clip;
+    if (!refreshed) {
+      throw new ClipUploadError('Clip was removed from device.', 'UPLOAD_FAILED');
+    }
 
     clipUploadLog.info('uploadClipWithRetry attempt', {
       clipId: clip.id,
       attempt,
       max: MAX_UPLOAD_ATTEMPTS,
-      state: current.uploadState,
+      state: refreshed.uploadState,
     });
 
     try {
-      return await uploadClip(current, userId);
+      return await uploadClip(refreshed, userId, attempt);
     } catch (err) {
       lastError = err;
       if (!shouldRetryUpload(attempt, MAX_UPLOAD_ATTEMPTS)) {
@@ -264,8 +293,8 @@ export async function uploadClipWithRetry(clip: LocalClip, userId: string): Prom
   }
 
   const message = toUserUploadMessage(lastError);
-  const latest = (await getClipById(clip.id)) ?? clip;
-  if (latest.uploadState !== 'failed') {
+  const latest = await getClipById(clip.id);
+  if (latest && latest.uploadState !== 'failed') {
     await markClipFailed(latest, message, MAX_UPLOAD_ATTEMPTS);
   }
 

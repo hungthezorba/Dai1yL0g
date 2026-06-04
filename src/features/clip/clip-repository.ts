@@ -3,6 +3,7 @@ import { requireOptionalNativeModule } from 'expo-modules-core';
 
 import { getLocalDayKey } from '@/features/day/local-day';
 
+import { isValidClientClipId } from './clip-id';
 import type { ClipIndexFile, LocalClip } from './types';
 
 const CLIPS_ROOT = `${FileSystem.documentDirectory ?? ''}dai1yl0g/clips/`;
@@ -77,7 +78,7 @@ async function writeIndex(index: ClipIndexFile): Promise<void> {
 export async function listClipsForDay(dayKey: string = getLocalDayKey()): Promise<LocalClip[]> {
   const index = await readIndex();
   return index.clips
-    .filter((clip) => clip.dayKey === dayKey)
+    .filter((clip) => clip.dayKey === dayKey && isValidClientClipId(clip.id))
     .sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
 }
 
