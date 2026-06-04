@@ -1,6 +1,16 @@
-# Welcome to your Expo app 👋
+# Dai1yL0g
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Capture short video moments through the day; the app stitches them into one **daily vlog** and shares with friends—no manual editing.
+
+**Product contract:** [`docs/product/overview.md`](docs/product/overview.md)  
+**Build plan:** [`docs/stories/initiatives/I01-dai1yl0g-mvp.md`](docs/stories/initiatives/I01-dai1yl0g-mvp.md)  
+**Harness:** [`docs/HARNESS.md`](docs/HARNESS.md)
+
+---
+
+## Expo development
+
+This is an [Expo](https://expo.dev) SDK 56 project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
 
@@ -10,20 +20,62 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Quick checks
 
    ```bash
-   npx expo start
+   npm run validate:quick
    ```
 
-In the output, you'll find options to open the app in a
+3. **Development build (required for camera — US-001)**
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   Camera and microphone use native modules. Expo Go is not the target runtime.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+   **iOS prerequisite:** [Expo SDK 56](https://expo.dev/changelog/sdk-56) requires **Xcode 26.4+** on **macOS Tahoe 26.2+**. That is newer than Xcode 16.2 on macOS Sequoia 15.x. A failed local build often shows:
+
+   ```text
+   package 'apple' is using Swift tools version 6.2.0 but the installed version is 6.0.0
+   ```
+
+   **M1 Pro is supported** for Tahoe and Xcode 26.4 — the usual limit is **macOS version**, not Apple Silicon. Check: `sw_vers`, `xcodebuild -version`, `swift --version`.
+
+   **Recommended if you are on macOS 15.x + Xcode 16.2 (this machine):**
+
+   Build the iOS dev client in the cloud; run JavaScript locally with Metro.
+
+   ```bash
+   npx eas-cli build --profile development --platform ios
+   ```
+
+   For Simulator, `eas.json` sets `"simulator": true` on the development profile — download the build artifact and install on the iOS Simulator, then:
+
+   ```bash
+   npm run start:dev
+   ```
+
+   **Android local build** (no Xcode 26.4 needed):
+
+   ```bash
+   npx expo run:android
+   npm run start:dev
+   ```
+
+   **Optional later — local iOS:** upgrade macOS to Tahoe 26.2+, install Xcode 26.4, then `npx expo run:ios`.
+
+   Open the **Capture** tab, grant camera and microphone, and confirm the green **Record-ready** pill (target ≤2s, max ≤5s per `docs/product/capture.md`).
+
+   **After US-002+ native deps** (`expo-file-system`, `expo-haptics`, `expo-video-thumbnails`): rebuild the dev client so native modules are linked — otherwise clip save and thumbnails still work, but haptics/thumbnail previews are skipped until you run `eas build` or `expo run:android` / `expo run:ios` again.
+
+   EAS config: [`eas.json`](eas.json). Native permissions: [`app.json`](app.json) `expo-camera` plugin.
+
+4. Web (UI fallback only)
+
+   ```bash
+   npm run web
+   ```
+
+   Shows a message to use a dev build on device; web is not proof for US-001.
+
+Routing lives in [`src/app/`](src/app/) (expo-router). Capture UI: [`src/features/capture/`](src/features/capture/).
 
 ## Get a fresh project
 

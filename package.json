@@ -5,10 +5,14 @@
   "dependencies": {
     "@expo/ui": "~56.0.15",
     "expo": "~56.0.8",
+    "expo-camera": "~56.0.7",
     "expo-constants": "~56.0.16",
+    "expo-dev-client": "~56.0.18",
     "expo-device": "~56.0.4",
+    "expo-file-system": "~56.0.7",
     "expo-font": "~56.0.5",
     "expo-glass-effect": "~56.0.4",
+    "expo-haptics": "~56.0.3",
     "expo-image": "~56.0.9",
     "expo-linking": "~56.0.13",
     "expo-router": "~56.2.8",
@@ -16,6 +20,8 @@
     "expo-status-bar": "~56.0.4",
     "expo-symbols": "~56.0.5",
     "expo-system-ui": "~56.0.5",
+    "expo-video": "~56.1.2",
+    "expo-video-thumbnails": "~56.0.3",
     "expo-web-browser": "~56.0.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -29,15 +35,21 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~56.0.4",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "typecheck": "tsc --noEmit",
+    "start:dev": "expo start --dev-client",
+    "test:unit": "node --experimental-strip-types scripts/test-record-ready.mjs && node --experimental-strip-types scripts/test-day-bucket.mjs",
+    "validate:quick": "npm run lint && npm run typecheck && npm run test:unit"
   },
   "private": true
 }
