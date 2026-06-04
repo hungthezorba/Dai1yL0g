@@ -15,7 +15,7 @@ Phone OTP and email magic link remain valid **future** options per `docs/product
 ## Decision
 
 - **Primary MVP auth:** Google OAuth through **Supabase Auth** (`signInWithOAuth({ provider: 'google' })`).
-- **Client flow:** `expo-web-browser` + `expo-auth-session` redirect URI (`dai1yl0g://` scheme); session established via `setSession` from callback URL.
+- **Client flow:** `expo-web-browser` + `expo-linking` redirect URI (`dai1yl0g://` via `createURL`); session established via `setSession` from callback URL (`oauth-redirect.ts`).
 - **Profile onboarding unchanged:** after first Google sign-in, user still sets `username`, `birthYear`, and confirms `displayName` / `timezone` (prefill from Google metadata when available).
 - **Session storage:** unchanged — `createSupabaseAuthStorage()` with optional `ExpoSecureStore`.
 

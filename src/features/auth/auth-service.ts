@@ -1,13 +1,13 @@
-import { makeRedirectUri } from 'expo-auth-session';
-import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as WebBrowser from 'expo-web-browser';
 
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 
+import { getOAuthRedirectUri, parseOAuthRedirectUrl } from './oauth-redirect';
+
 WebBrowser.maybeCompleteAuthSession();
 
 async function createSessionFromUrl(url: string): Promise<void> {
-  const { params, errorCode } = QueryParams.getQueryParams(url);
+  const { params, errorCode } = parseOAuthRedirectUrl(url);
   if (errorCode) {
     throw new Error(errorCode);
   }
@@ -28,7 +28,7 @@ async function createSessionFromUrl(url: string): Promise<void> {
 }
 
 export async function signInWithGoogle(): Promise<void> {
-  const redirectTo = makeRedirectUri({ scheme: 'dai1yl0g' });
+  const redirectTo = getOAuthRedirectUri();
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
