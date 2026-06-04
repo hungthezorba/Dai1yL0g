@@ -75,7 +75,18 @@ This is an [Expo](https://expo.dev) SDK 56 project created with [`create-expo-ap
 
    Shows a message to use a dev build on device; web is not proof for US-001.
 
-Routing lives in [`src/app/`](src/app/) (expo-router). Capture UI: [`src/features/capture/`](src/features/capture/).
+5. **Auth (US-003 — Supabase phone OTP)**
+
+   ```bash
+   cp .env.example .env
+   # Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY
+   ```
+
+   In Supabase: enable **Phone** auth provider; run [`supabase/migrations/001_profiles.sql`](supabase/migrations/001_profiles.sql).
+
+   Restart Metro (`npx expo start -c`). First launch → phone OTP → profile → **Capture** tab.
+
+Routing lives in [`src/app/`](src/app/) (expo-router). Capture: [`src/features/capture/`](src/features/capture/). Auth: [`src/features/auth/`](src/features/auth/).
 
 ## Get a fresh project
 

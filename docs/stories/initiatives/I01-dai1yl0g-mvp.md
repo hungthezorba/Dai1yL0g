@@ -1,6 +1,6 @@
 # Initiative I01: Dai1yL0g MVP
 
-Status: **in progress** (US-001 done; US-002 implemented; US-003 next)
+Status: **in progress** (US-001–US-003 implemented; US-004 next)
 
 ## Goal
 

@@ -15,7 +15,9 @@
     "expo-haptics": "~56.0.3",
     "expo-image": "~56.0.9",
     "expo-linking": "~56.0.13",
+    "expo-localization": "~56.0.6",
     "expo-router": "~56.2.8",
+    "expo-secure-store": "~56.0.4",
     "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",
     "expo-symbols": "~56.0.5",
@@ -48,7 +50,7 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "start:dev": "expo start --dev-client",
-    "test:unit": "node --experimental-strip-types scripts/test-record-ready.mjs && node --experimental-strip-types scripts/test-day-bucket.mjs",
+    "test:unit": "node --experimental-strip-types scripts/test-record-ready.mjs && node --experimental-strip-types scripts/test-day-bucket.mjs && node --experimental-strip-types scripts/test-auth-schemas.mjs",
     "validate:quick": "npm run lint && npm run typecheck && npm run test:unit"
   },
   "private": true
