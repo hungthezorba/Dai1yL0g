@@ -75,16 +75,24 @@ This is an [Expo](https://expo.dev) SDK 56 project created with [`create-expo-ap
 
    Shows a message to use a dev build on device; web is not proof for US-001.
 
-5. **Auth (US-003 — Google SSO via Supabase)**
+5. **Auth (US-003 — native Google sign-in via Supabase)**
 
    ```bash
    cp .env.example .env
-   # Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY
+   # Supabase URL/key + EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID + EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
    ```
 
-   In Supabase: enable **Google** provider; configure OAuth redirect URLs (see [`.env.example`](.env.example)); run [`supabase/migrations/001_profiles.sql`](supabase/migrations/001_profiles.sql).
+   Google Cloud: **Web**, **iOS**, and **Android** OAuth clients. Supabase: enable **Google** provider (Web client secret; all client IDs comma-separated, Web first; **Skip nonce check** on iOS). See [`.env.example`](.env.example) and [Supabase React Native Google guide](https://supabase.com/docs/guides/auth/social-login/auth-google?platform=react-native#google-pre-built).
 
-   Restart Metro (`npx expo start -c`). First launch → **Continue with Google** → profile → **Capture** tab.
+   The iOS Google **URL scheme** is derived from `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` at prebuild. For **EAS Build**, set the same `EXPO_PUBLIC_*` vars in [Expo → Project → Environment variables](https://expo.dev/accounts) (`.env` is not uploaded).
+
+   Run [`supabase/migrations/001_profiles.sql`](supabase/migrations/001_profiles.sql) and [`supabase/migrations/002_clips_storage.sql`](supabase/migrations/002_clips_storage.sql), then **rebuild the dev client** (`eas build` or `expo run:ios` / `expo run:android`) so Google Sign-In, clip upload, and video compression natives are linked.
+
+   Restart Metro (`npx expo start -c`). Sign in with Google → profile → **Camera** tab → record a clip; timeline shows **Posting…** then **Live** when upload succeeds.
+
+6. **Upload (US-004)**
+
+   Clips compress (H.264, 1080p, 2 Mbps when compressor native is present) and upload to Supabase Storage. Failed posts stay on device with a **Retry** badge on the timeline.
 
 Routing lives in [`src/app/`](src/app/) (expo-router). Capture: [`src/features/capture/`](src/features/capture/). Auth: [`src/features/auth/`](src/features/auth/).
 

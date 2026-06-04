@@ -1,11 +1,12 @@
 import { Image } from 'expo-image';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { CaptureColors, CaptureLayout } from '@/features/capture/design-tokens';
-import type { LocalClip } from '@/features/clip/types';
+import type { ClipUploadState, LocalClip } from '@/features/clip/types';
 import { formatDayLabel } from '@/features/day/local-day';
+import { PlayfulColors } from '@/design/tokens';
 
 function formatClipTime(iso: string): string {
   return new Date(iso).toLocaleTimeString(undefined, {
@@ -19,13 +20,27 @@ function formatDuration(ms: number): string {
   return `${sec}s`;
 }
 
+function uploadBadgeLabel(state: ClipUploadState): string | null {
+  switch (state) {
+    case 'uploading':
+      return 'Posting…';
+    case 'failed':
+      return 'Retry';
+    case 'posted':
+      return null;
+    default:
+      return 'Queued';
+  }
+}
+
 type DayClipsStripProps = {
   dayKey: string;
   clips: LocalClip[];
   loading: boolean;
+  onRetryUpload?: (clipId: string) => void;
 };
 
-export function DayClipsStrip({ dayKey, clips, loading }: DayClipsStripProps) {
+export function DayClipsStrip({ dayKey, clips, loading, onRetryUpload }: DayClipsStripProps) {
   if (loading && clips.length === 0) {
     return (
       <View style={styles.container}>
@@ -57,35 +72,65 @@ export function DayClipsStrip({ dayKey, clips, loading }: DayClipsStripProps) {
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Clip at ${formatClipTime(item.capturedAt)}, ${formatDuration(item.durationMs)}`}
-              style={styles.thumbCard}>
-              {item.thumbnailPath ? (
-                <Image
-                  source={{ uri: item.thumbnailPath }}
-                  style={styles.thumbImage}
-                  contentFit="cover"
-                />
-              ) : (
-                <View style={[styles.thumbImage, styles.thumbPlaceholder]}>
-                  <ThemedText type="smallBold" style={styles.thumbPlaceholderIcon}>
+          renderItem={({ item }) => {
+            const badge = uploadBadgeLabel(item.uploadState);
+            const isRetryable = item.uploadState === 'failed' || item.uploadState === 'local_only';
+
+            return (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Clip at ${formatClipTime(item.capturedAt)}, ${formatDuration(item.durationMs)}${badge ? `, ${badge}` : ''}`}
+                style={styles.thumbCard}
+                onPress={isRetryable && onRetryUpload ? () => onRetryUpload(item.id) : undefined}
+                disabled={item.uploadState === 'uploading'}>
+                {item.thumbnailPath ? (
+                  <Image
+                    source={{ uri: item.thumbnailPath }}
+                    style={styles.thumbImage}
+                    contentFit="cover"
+                  />
+                ) : (
+                  <View style={[styles.thumbImage, styles.thumbPlaceholder]}>
+                    <ThemedText type="smallBold" style={styles.thumbPlaceholderIcon}>
+                      {formatDuration(item.durationMs)}
+                    </ThemedText>
+                  </View>
+                )}
+                {badge ? (
+                  <View
+                    style={[
+                      styles.badge,
+                      item.uploadState === 'failed' && styles.badgeFailed,
+                      item.uploadState === 'posted' && styles.badgePosted,
+                    ]}>
+                    {item.uploadState === 'uploading' ? (
+                      <ActivityIndicator size="small" color={CaptureColors.onCameraText} />
+                    ) : (
+                      <ThemedText type="small" style={styles.badgeText}>
+                        {badge}
+                      </ThemedText>
+                    )}
+                  </View>
+                ) : null}
+                {item.uploadState === 'posted' ? (
+                  <View style={[styles.badge, styles.badgePosted]}>
+                    <ThemedText type="small" style={styles.badgeText}>
+                      Live
+                    </ThemedText>
+                  </View>
+                ) : null}
+                <View style={styles.thumbMeta}>
+                  <ThemedText type="small" style={styles.thumbTime}>
+                    {formatClipTime(item.capturedAt)}
+                  </ThemedText>
+                  <ThemedText type="small" style={styles.thumbDuration}>
                     {formatDuration(item.durationMs)}
+                    {!item.hasAudio ? ' · muted' : ''}
                   </ThemedText>
                 </View>
-              )}
-              <View style={styles.thumbMeta}>
-                <ThemedText type="small" style={styles.thumbTime}>
-                  {formatClipTime(item.capturedAt)}
-                </ThemedText>
-                <ThemedText type="small" style={styles.thumbDuration}>
-                  {formatDuration(item.durationMs)}
-                  {!item.hasAudio ? ' · muted' : ''}
-                </ThemedText>
-              </View>
-            </Pressable>
-          )}
+              </Pressable>
+            );
+          }}
         />
       )}
     </View>
@@ -97,8 +142,10 @@ const thumb = CaptureLayout.clipThumbSize;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: CaptureColors.timelineBg,
-    borderTopLeftRadius: Spacing.three,
-    borderTopRightRadius: Spacing.three,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderTopWidth: 3,
+    borderColor: CaptureColors.frame,
     paddingTop: Spacing.two,
     paddingBottom: Spacing.two,
     gap: Spacing.two,
@@ -142,6 +189,28 @@ const styles = StyleSheet.create({
   thumbPlaceholderIcon: {
     color: CaptureColors.onCameraText,
     fontSize: 22,
+  },
+  badge: {
+    position: 'absolute',
+    top: Spacing.one,
+    right: Spacing.one,
+    backgroundColor: 'rgba(17,17,17,0.75)',
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.one,
+    paddingVertical: 2,
+    minWidth: 44,
+    alignItems: 'center',
+  },
+  badgeFailed: {
+    backgroundColor: PlayfulColors.primary,
+  },
+  badgePosted: {
+    backgroundColor: CaptureColors.success,
+  },
+  badgeText: {
+    color: CaptureColors.onCameraText,
+    fontSize: 10,
+    fontWeight: '700',
   },
   thumbMeta: {
     paddingHorizontal: Spacing.one,

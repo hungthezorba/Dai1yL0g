@@ -4,8 +4,10 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandWordmark } from '@/components/playful/brand-wordmark';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { AppFonts } from '@/hooks/use-app-fonts';
 import { CaptureColors } from '@/features/capture/design-tokens';
 import { useCapturePermissions } from '@/features/capture/hooks/use-capture-permissions';
 import { useClipRecorder } from '@/features/capture/hooks/use-clip-recorder';
@@ -14,6 +16,7 @@ import {
   recordReadyMeetsTarget,
   type RecordReadyState,
 } from '@/features/capture/record-ready';
+import { useClipUploadQueue } from '@/features/clip/hooks/use-clip-upload-queue';
 import { useTodayClips } from '@/features/clip/hooks/use-today-clips';
 
 import { DayClipsStrip } from './day-clips-strip';
@@ -21,10 +24,8 @@ import { RecordButton } from './record-button';
 
 function CaptureWebFallback() {
   return (
-    <SafeAreaView style={styles.fallback}>
-      <ThemedText type="title" style={styles.fallbackTitle}>
-        Dai1yL0g
-      </ThemedText>
+    <SafeAreaView style={[styles.fallback, styles.fallbackLight]}>
+      <BrandWordmark />
       <ThemedText type="subtitle" themeColor="textSecondary" style={styles.fallbackBody}>
         Clip recording runs on a development build for iOS or Android. Use{' '}
         <ThemedText type="code">npm run start:dev</ThemedText> after installing a dev client.
@@ -35,8 +36,9 @@ function CaptureWebFallback() {
 
 function PermissionGate({ onEnable }: { onEnable: () => void }) {
   return (
-    <SafeAreaView style={styles.fallback}>
-      <ThemedText type="title" style={styles.fallbackTitle}>
+    <SafeAreaView style={[styles.fallback, styles.fallbackLight]}>
+      <BrandWordmark size="md" />
+      <ThemedText type="subtitle" style={styles.fallbackTitle}>
         Capture your day
       </ThemedText>
       <ThemedText themeColor="textSecondary" style={styles.fallbackBody}>
@@ -99,6 +101,7 @@ function CaptureScreenNative() {
   const cameraRef = useRef<CameraView>(null);
   const { status, requestPermissions } = useCapturePermissions();
   const { clips, loading, dayKey, refresh } = useTodayClips();
+  const { enqueueUpload, retryClip } = useClipUploadQueue({ onClipUpdated: () => void refresh() });
   const [facing, setFacing] = useState<CameraType>('back');
   const [micEnabled, setMicEnabled] = useState(true);
   const [readyMs, setReadyMs] = useState<number | null>(null);
@@ -124,6 +127,7 @@ function CaptureScreenNative() {
     cameraReady,
     onClipSaved: () => {
       void refresh();
+      enqueueUpload();
     },
   });
 
@@ -189,8 +193,9 @@ function CaptureScreenNative() {
       />
       <SafeAreaView style={styles.overlay} pointerEvents="box-none">
         <View style={styles.header}>
-          <ThemedText type="title" style={styles.brand}>
-            Dai1yL0g
+          <BrandWordmark size="sm" onDark />
+          <ThemedText type="small" style={styles.rotateHint}>
+            rotate to capture
           </ThemedText>
           <StatusPill readyState={readyState} readyMs={readyMs} />
         </View>
@@ -229,7 +234,7 @@ function CaptureScreenNative() {
           </ThemedText>
         </View>
 
-        <DayClipsStrip dayKey={dayKey} clips={clips} loading={loading} />
+        <DayClipsStrip dayKey={dayKey} clips={clips} loading={loading} onRetryUpload={retryClip} />
       </SafeAreaView>
     </View>
   );
@@ -249,8 +254,13 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.two,
     gap: Spacing.two,
   },
-  brand: {
-    color: CaptureColors.onCameraText,
+  rotateHint: {
+    color: CaptureColors.primaryMuted,
+    fontFamily: AppFonts.body,
+    textTransform: 'lowercase',
+  },
+  fallbackLight: {
+    backgroundColor: '#FFF8FA',
   },
   statusPill: {
     alignSelf: 'flex-start',
@@ -322,6 +332,8 @@ const styles = StyleSheet.create({
   },
   fallbackTitle: {
     textAlign: 'center',
+    color: CaptureColors.primary,
+    fontFamily: AppFonts.displaySemi,
   },
   fallbackBody: {
     textAlign: 'center',

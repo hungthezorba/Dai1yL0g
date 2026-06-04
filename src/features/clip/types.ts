@@ -9,6 +9,10 @@ export type LocalClip = {
   localPath: string;
   thumbnailPath?: string;
   uploadState: ClipUploadState;
+  /** Server `clips.id` after successful upload. */
+  remoteId?: string;
+  uploadAttempt?: number;
+  uploadError?: string;
 };
 
 export type ClipIndexFile = {

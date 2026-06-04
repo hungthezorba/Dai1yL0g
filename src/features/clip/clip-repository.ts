@@ -51,7 +51,7 @@ async function generateClipThumbnail(
   }
 
   try {
-    const thumb = await native.getThumbnail(videoPath, { time: 500 });
+    const thumb = await native.getThumbnail(videoPath, { time: 1000 });
     const thumbDest = `${CLIPS_ROOT}${clipId}.jpg`;
     await FileSystem.copyAsync({ from: thumb.uri, to: thumbDest });
     await FileSystem.deleteAsync(thumb.uri, { idempotent: true });
@@ -120,6 +120,31 @@ export async function discardTempRecording(tempUri: string | undefined): Promise
   } catch {
     // Best-effort cleanup
   }
+}
+
+export async function getClipById(clipId: string): Promise<LocalClip | null> {
+  const index = await readIndex();
+  return index.clips.find((c) => c.id === clipId) ?? null;
+}
+
+export async function listClipsPendingUpload(): Promise<LocalClip[]> {
+  const index = await readIndex();
+  return index.clips.filter((c) => c.uploadState === 'local_only' || c.uploadState === 'failed');
+}
+
+export async function updateClipInIndex(
+  clipId: string,
+  patch: Partial<Pick<LocalClip, 'uploadState' | 'remoteId' | 'uploadAttempt' | 'uploadError' | 'thumbnailPath'>>,
+): Promise<LocalClip> {
+  const index = await readIndex();
+  const idx = index.clips.findIndex((c) => c.id === clipId);
+  if (idx === -1) {
+    throw new Error(`Clip not found: ${clipId}`);
+  }
+  const next = { ...index.clips[idx], ...patch };
+  index.clips[idx] = next;
+  await writeIndex(index);
+  return next;
 }
 
 export async function deleteClip(clipId: string): Promise<void> {

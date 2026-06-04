@@ -3,7 +3,10 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
+    "@expo-google-fonts/fredoka": "^0.4.1",
+    "@expo-google-fonts/nunito": "^0.4.2",
     "@expo/ui": "~56.0.15",
+    "@react-native-google-signin/google-signin": "^16.1.2",
     "@supabase/supabase-js": "^2.106.2",
     "expo": "~56.0.8",
     "expo-camera": "~56.0.7",
@@ -15,6 +18,7 @@
     "expo-glass-effect": "~56.0.4",
     "expo-haptics": "~56.0.3",
     "expo-image": "~56.0.9",
+    "expo-image-and-video-compressor": "^1.0.2",
     "expo-linking": "~56.0.13",
     "expo-localization": "~56.0.6",
     "expo-router": "~56.2.8",
@@ -53,7 +57,7 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "start:dev": "expo start --dev-client",
-    "test:unit": "node --experimental-strip-types scripts/test-record-ready.mjs && node --experimental-strip-types scripts/test-day-bucket.mjs && node --experimental-strip-types scripts/test-auth-schemas.mjs",
+    "test:unit": "node --experimental-strip-types scripts/test-record-ready.mjs && node --experimental-strip-types scripts/test-day-bucket.mjs && node --experimental-strip-types scripts/test-auth-schemas.mjs && node --experimental-strip-types scripts/test-clip-upload.mjs",
     "validate:quick": "npm run lint && npm run typecheck && npm run test:unit"
   },
   "private": true
