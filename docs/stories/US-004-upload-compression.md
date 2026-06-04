@@ -57,4 +57,7 @@ Platform: sign in → record 3–5s clip → timeline shows Posting… then Live
 
 ## Ship (Git)
 
+- `a1111fa` feat(clip): US-004 compress and upload clips to Supabase
+- Related: `da38259` auth, `1d26c80` UI (same session)
+
 Refs: US-004
