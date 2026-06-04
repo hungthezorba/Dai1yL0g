@@ -31,6 +31,7 @@ Observed failures:
 - Prefer **`requireOptionalNativeModule('ModuleName')`** from `expo-modules-core` and call the native API only when non-null (see `src/features/clip/clip-repository.ts` for `ExpoVideoThumbnails`).
 - For haptics and similar, use **dynamic import inside try/catch** only when the package does not throw on load; otherwise use the same optional-native pattern.
 - **US-003:** `expo-secure-store` must not be top-level-imported; use `createSupabaseAuthStorage()` in `src/infrastructure/supabase/auth-storage.ts` (`requireOptionalNativeModule('ExpoSecureStore')`) with in-memory fallback until rebuild.
+- **US-003 timezone:** use `Intl.DateTimeFormat().resolvedOptions().timeZone` in `getDeviceTimezone()` — do not import `expo-localization` for profile setup on stale binaries.
 
 ### Thumbnails (US-002)
 

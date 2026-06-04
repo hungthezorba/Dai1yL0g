@@ -1,4 +1,3 @@
-import * as Localization from 'expo-localization';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput } from 'react-native';
@@ -7,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/features/auth/auth-context';
 import { AuthColors } from '@/features/auth/design-tokens';
+import { getDeviceTimezone } from '@/features/auth/device-timezone';
 import { upsertProfile } from '@/features/auth/profile-service';
 
 import { AuthScreenShell } from './auth-screen-shell';
@@ -14,10 +14,7 @@ import { AuthScreenShell } from './auth-screen-shell';
 export function ProfileSetupScreen() {
   const router = useRouter();
   const { session, refreshProfile } = useAuth();
-  const defaultTimezone = useMemo(
-    () => Localization.getCalendars()[0]?.timeZone ?? 'UTC',
-    [],
-  );
+  const defaultTimezone = useMemo(() => getDeviceTimezone(), []);
 
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
