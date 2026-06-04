@@ -4,6 +4,7 @@ import { requireOptionalNativeModule } from 'expo-modules-core';
 import { getLocalDayKey } from '@/features/day/local-day';
 
 import { isValidClientClipId } from './clip-id';
+import { clipUploadLog } from './upload-logger';
 import type { ClipIndexFile, LocalClip } from './types';
 
 const CLIPS_ROOT = `${FileSystem.documentDirectory ?? ''}dai1yl0g/clips/`;
@@ -161,16 +162,43 @@ export async function updateClipInIndex(
   return next;
 }
 
+async function safeDeleteLocalFile(uri: string | undefined, label: string): Promise<void> {
+  if (!uri) {
+    return;
+  }
+  try {
+    const info = await FileSystem.getInfoAsync(uri);
+    if (!info.exists) {
+      return;
+    }
+    if ('isDirectory' in info && info.isDirectory) {
+      clipUploadLog.warn('skip delete — path is a directory', { label, uri });
+      return;
+    }
+    await FileSystem.deleteAsync(uri, { idempotent: true });
+  } catch (err) {
+    clipUploadLog.warn('safeDeleteLocalFile failed (ignored)', { label, uri, err });
+  }
+}
+
+/** Drop index row only — use when the video file is already missing or path is invalid. */
+export async function removeClipFromIndex(clipId: string): Promise<void> {
+  const index = await readIndex();
+  const before = index.clips.length;
+  index.clips = index.clips.filter((c) => c.id !== clipId);
+  if (index.clips.length !== before) {
+    await writeIndex(index);
+    clipUploadLog.info('removed clip from index', { clipId });
+  }
+}
+
 export async function deleteClip(clipId: string): Promise<void> {
   const index = await readIndex();
   const target = index.clips.find((c) => c.id === clipId);
   if (!target) {
     return;
   }
-  await FileSystem.deleteAsync(target.localPath, { idempotent: true });
-  if (target.thumbnailPath) {
-    await FileSystem.deleteAsync(target.thumbnailPath, { idempotent: true });
-  }
-  index.clips = index.clips.filter((c) => c.id !== clipId);
-  await writeIndex(index);
+  await safeDeleteLocalFile(target.localPath, 'video');
+  await safeDeleteLocalFile(target.thumbnailPath, 'thumbnail');
+  await removeClipFromIndex(clipId);
 }

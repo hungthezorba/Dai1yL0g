@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
-import { deleteClip, listClipsPendingUpload } from './clip-repository';
+import { listClipsPendingUpload, removeClipFromIndex } from './clip-repository';
 import { isValidClientClipId } from './clip-id';
 import { clipUploadLog } from './upload-logger';
 import type { LocalClip } from './types';
@@ -20,7 +20,7 @@ export async function sanitizeClipsBeforeUpload(): Promise<LocalClip[]> {
   for (const clip of pending) {
     if (!isValidClientClipId(clip.id)) {
       clipUploadLog.warn('removing legacy clip id from index', { clipId: clip.id });
-      await deleteClip(clip.id);
+      await removeClipFromIndex(clip.id);
       continue;
     }
 
@@ -29,7 +29,7 @@ export async function sanitizeClipsBeforeUpload(): Promise<LocalClip[]> {
         clipId: clip.id,
         localPath: clip.localPath,
       });
-      await deleteClip(clip.id);
+      await removeClipFromIndex(clip.id);
       continue;
     }
 
