@@ -55,7 +55,7 @@ search username / contacts match (contacts deferred)
 
 ## API Shape (conceptual)
 
-- `POST /auth/oauth/google` (client: Supabase `signInWithOAuth`)
+- `POST /auth/oauth/google` (client: native Google ID token → Supabase `signInWithIdToken`)
 - `GET /me`, `PATCH /me` (profiles table)
 - `POST /friends/request`, `POST /friends/accept`, `DELETE /friends/:id`
 - `POST /blocks`, `DELETE /blocks/:id`

@@ -12,6 +12,7 @@ import {
 import { getSupabaseClient, isSupabaseConfigured } from '@/infrastructure/supabase/client';
 
 import { signOut as authSignOut } from './auth-service';
+import { configureGoogleSignIn } from './google-signin';
 import { fetchProfile } from './profile-service';
 import type { UserProfile } from './types';
 
@@ -45,6 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
     }
   }, [session]);
+
+  useEffect(() => {
+    configureGoogleSignIn();
+  }, []);
 
   useEffect(() => {
     if (!configured) {

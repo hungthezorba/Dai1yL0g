@@ -1,14 +1,17 @@
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { PillButton } from '@/components/playful/pill-button';
 import { Spacing } from '@/constants/theme';
+import { PlayfulColors, PlayfulRadius } from '@/design/tokens';
 import { useAuth } from '@/features/auth/auth-context';
 import { AuthColors } from '@/features/auth/design-tokens';
 import { getDeviceTimezone } from '@/features/auth/device-timezone';
 import { getGoogleProfilePrefill } from '@/features/auth/google-prefill';
 import { upsertProfile } from '@/features/auth/profile-service';
+import { AppFonts } from '@/hooks/use-app-fonts';
 
 import { AuthScreenShell } from './auth-screen-shell';
 
@@ -52,7 +55,7 @@ export function ProfileSetupScreen() {
   return (
     <AuthScreenShell
       title="Set up your profile"
-      subtitle="Your friends will see this name. Username is unique.">
+      subtitle="Your friends will see this name. Pick a unique username.">
       <ThemedText type="small" style={styles.label}>
         Display name
       </ThemedText>
@@ -102,18 +105,13 @@ export function ProfileSetupScreen() {
           {error}
         </ThemedText>
       ) : null}
-      <Pressable
-        style={[styles.button, submitting && styles.buttonDisabled]}
+      <PillButton
+        label="Start capturing"
+        variant="brand"
+        loading={submitting}
         onPress={() => void onSave()}
-        disabled={submitting}>
-        {submitting ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <ThemedText type="smallBold" style={styles.buttonLabel}>
-            Start capturing
-          </ThemedText>
-        )}
-      </Pressable>
+        disabled={submitting}
+      />
     </AuthScreenShell>
   );
 }
@@ -121,34 +119,25 @@ export function ProfileSetupScreen() {
 const styles = StyleSheet.create({
   label: {
     color: AuthColors.text,
+    fontFamily: AppFonts.bodySemi,
   },
   input: {
-    borderWidth: 1,
-    borderColor: AuthColors.border,
-    borderRadius: Spacing.two,
+    borderWidth: 2,
+    borderColor: PlayfulColors.border,
+    borderRadius: PlayfulRadius.md,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     fontSize: 16,
+    fontFamily: AppFonts.body,
     color: AuthColors.text,
-    backgroundColor: AuthColors.background,
+    backgroundColor: PlayfulColors.surface,
   },
   hint: {
     color: AuthColors.textSecondary,
+    fontFamily: AppFonts.body,
   },
   error: {
     color: AuthColors.error,
-  },
-  button: {
-    backgroundColor: AuthColors.primary,
-    borderRadius: Spacing.three,
-    paddingVertical: Spacing.three,
-    alignItems: 'center',
-    marginTop: Spacing.two,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonLabel: {
-    color: '#FFFFFF',
+    fontFamily: AppFonts.body,
   },
 });

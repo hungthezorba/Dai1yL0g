@@ -21,7 +21,7 @@ high-risk (auth)
 ## Acceptance Criteria
 
 - [x] Supabase client with secure session storage (`expo-secure-store` or in-memory fallback on stale dev builds).
-- [x] Google OAuth sign-in (`signInWithOAuth` + in-app browser redirect).
+- [x] Native Google sign-in (`@react-native-google-signin/google-signin` + `signInWithIdToken`).
 - [x] Profile setup screen; profile row in `profiles` table (SQL in `supabase/migrations/`).
 - [x] Auth gate: no session → sign-in; session without profile → profile setup; complete → `(app)` capture.
 - [x] Session restore on cold start without re-login when refresh token valid.
@@ -38,13 +38,14 @@ high-risk (auth)
 | Date | Change |
 | --- | --- |
 | 2026-06-01 | Replaced phone OTP with Google SSO per decision 0009. |
+| 2026-06-01 | Switched to native `@react-native-google-signin/google-signin` + `signInWithIdToken`. |
 
 ## Validation
 
 | Layer | Expected proof |
 | --- | --- |
 | Unit | `scripts/test-auth-schemas.mjs` |
-| Integration | Manual: Supabase Google provider + OAuth redirect + profile upsert |
+| Integration | Manual: Supabase Google provider + native ID token + profile upsert |
 | E2E | — |
 | Platform | Dev build: Google sign-in → profile → Capture; cold start session restore |
 
@@ -60,7 +61,7 @@ high-risk (auth)
 npm run validate:quick
 ```
 
-Integration: enable Google in Supabase; add OAuth redirect URLs; sign in → profile → Capture.
+Integration: enable Google in Supabase; configure Web/iOS/Android client IDs; rebuild dev client; sign in → profile → Capture.
 
 ## Ship (Git)
 

@@ -4,37 +4,40 @@ Date: 2026-06-01
 
 ## Status
 
-Accepted
+Accepted (updated 2026-06-01: native Google Sign-In)
 
 ## Context
 
-US-003 initially shipped **phone OTP** via Supabase Auth. Product direction changed: sign-in should use **Google SSO** (OAuth) instead of mobile number, reducing SMS cost, onboarding friction, and provider setup for MVP.
+US-003 initially shipped **phone OTP** via Supabase Auth. Product direction changed: sign-in should use **Google SSO** instead of mobile number.
 
-Phone OTP and email magic link remain valid **future** options per `docs/product/accounts.md` (deferred).
+An initial MVP used **Supabase-hosted OAuth** (`signInWithOAuth` + in-app browser). That works without extra native modules but is a worse mobile UX than the platform Google account picker.
 
 ## Decision
 
-- **Primary MVP auth:** Google OAuth through **Supabase Auth** (`signInWithOAuth({ provider: 'google' })`).
-- **Client flow:** `expo-web-browser` + `expo-linking` redirect URI (`dai1yl0g://` via `createURL`); session established via `setSession` from callback URL (`oauth-redirect.ts`).
+- **Primary MVP auth:** Google via **`@react-native-google-signin/google-signin`** → Supabase **`signInWithIdToken({ provider: 'google', token })`** ([Supabase React Native guide](https://supabase.com/docs/guides/auth/social-login/auth-google?platform=react-native#google-pre-built)).
+- **Configuration:** `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` (Web OAuth client) passed to `GoogleSignin.configure({ webClientId })`; optional `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`; `EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME` for Expo config plugin (`iosUrlScheme` = reversed iOS client ID).
+- **Supabase Dashboard:** Google provider enabled; **Client IDs** comma-separated with **Web client ID first**; Web client **secret**; **Skip nonce check** enabled for iOS native flow.
 - **Profile onboarding unchanged:** after first Google sign-in, user still sets `username`, `birthYear`, and confirms `displayName` / `timezone` (prefill from Google metadata when available).
 - **Session storage:** unchanged — `createSupabaseAuthStorage()` with optional `ExpoSecureStore`.
+- **Requires dev client rebuild** after adding the native module (not supported in Expo Go).
 
 ## Alternatives Considered
 
 1. **Keep phone OTP** — rejected per product request.
 2. **Firebase Auth + Google** — rejected; stack locked to Supabase in 0006.
-3. **Native `@react-native-google-signin/google-signin`** — rejected for MVP; Supabase-hosted OAuth is simpler and cross-platform with one config surface.
+3. **Supabase `signInWithOAuth` + `expo-web-browser`** — superseded for mobile; kept out of the client path in favor of native sign-in.
 
 ## Consequences
 
 Positive:
 
-- Faster onboarding for users with Google accounts.
-- No SMS / Twilio configuration for MVP.
+- Native account picker UX on iOS/Android.
+- No in-app browser redirect dance for Google on mobile.
 
 Tradeoffs:
 
-- Requires Google Cloud OAuth client + Supabase Google provider configuration.
+- Google Cloud: Web + iOS + Android OAuth clients and correct Supabase provider configuration.
+- EAS / local **rebuild** required when changing native Google config.
 - Users without Google need a deferred second provider (Apple Sign In, email) before public launch.
 
 ## Follow-Up

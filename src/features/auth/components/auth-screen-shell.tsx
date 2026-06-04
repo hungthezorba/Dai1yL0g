@@ -1,19 +1,25 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
+import { BrandWordmark } from '@/components/playful/brand-wordmark';
+import { PlayfulCard } from '@/components/playful/playful-card';
+import { PlayfulDoodleCluster } from '@/components/playful/playful-doodles';
+import { PlayfulScreenFrame } from '@/components/playful/playful-screen-frame';
 import { Spacing } from '@/constants/theme';
+import { PlayfulColors } from '@/design/tokens';
 import { AuthColors } from '@/features/auth/design-tokens';
+import { AppFonts } from '@/hooks/use-app-fonts';
 
 type AuthScreenShellProps = {
   title: string;
   subtitle?: string;
+  showDoodles?: boolean;
   children: React.ReactNode;
 };
 
-export function AuthScreenShell({ title, subtitle, children }: AuthScreenShellProps) {
+export function AuthScreenShell({ title, subtitle, showDoodles = true, children }: AuthScreenShellProps) {
   return (
-    <SafeAreaView style={styles.safe}>
+    <PlayfulScreenFrame warm>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -21,62 +27,54 @@ export function AuthScreenShell({ title, subtitle, children }: AuthScreenShellPr
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
+          {showDoodles ? <PlayfulDoodleCluster compact /> : null}
           <View style={styles.header}>
-            <ThemedText type="title" style={styles.brand}>
-              Dai1yL0g
-            </ThemedText>
-            <ThemedText type="subtitle" style={styles.title}>
-              {title}
-            </ThemedText>
+            <BrandWordmark />
+            <ThemedText style={styles.title}>{title}</ThemedText>
             {subtitle ? (
               <ThemedText type="small" style={styles.subtitle}>
                 {subtitle}
               </ThemedText>
             ) : null}
           </View>
-          <View style={styles.card}>{children}</View>
+          <PlayfulCard elevated style={styles.card}>
+            {children}
+          </PlayfulCard>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </PlayfulScreenFrame>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: AuthColors.background,
-  },
   flex: {
     flex: 1,
+    backgroundColor: AuthColors.background,
   },
   scroll: {
     flexGrow: 1,
     padding: Spacing.four,
     justifyContent: 'center',
-    gap: Spacing.four,
+    gap: Spacing.three,
   },
   header: {
     gap: Spacing.two,
     alignItems: 'center',
   },
-  brand: {
-    color: AuthColors.primary,
-  },
   title: {
-    color: AuthColors.text,
+    fontFamily: AppFonts.bodySemi,
+    fontSize: 22,
+    lineHeight: 28,
+    color: PlayfulColors.ink,
     textAlign: 'center',
   },
   subtitle: {
     color: AuthColors.textSecondary,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
+    fontFamily: AppFonts.body,
   },
   card: {
-    backgroundColor: AuthColors.surface,
-    borderRadius: Spacing.three,
-    padding: Spacing.four,
     gap: Spacing.three,
-    borderWidth: 1,
-    borderColor: AuthColors.border,
   },
 });

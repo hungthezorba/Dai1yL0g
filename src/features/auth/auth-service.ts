@@ -1,60 +1,20 @@
-import * as WebBrowser from 'expo-web-browser';
+import { Platform } from 'react-native';
 
 import { getSupabaseClient } from '@/infrastructure/supabase/client';
 
-import { getOAuthRedirectUri, parseOAuthRedirectUrl } from './oauth-redirect';
-
-WebBrowser.maybeCompleteAuthSession();
-
-async function createSessionFromUrl(url: string): Promise<void> {
-  const { params, errorCode } = parseOAuthRedirectUrl(url);
-  if (errorCode) {
-    throw new Error(errorCode);
-  }
-  const accessToken = params.access_token;
-  const refreshToken = params.refresh_token;
-  if (!accessToken) {
-    throw new Error('Sign-in did not return a session. Check Supabase redirect URLs.');
-  }
-
-  const supabase = getSupabaseClient();
-  const { error } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken ?? '',
-  });
-  if (error) {
-    throw new Error(error.message);
-  }
-}
+import { signInWithGoogleNative, signOutGoogleNative } from './google-signin';
 
 export async function signInWithGoogle(): Promise<void> {
-  const redirectTo = getOAuthRedirectUri();
-  const supabase = getSupabaseClient();
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo,
-      skipBrowserRedirect: true,
-    },
-  });
-
-  if (error) {
-    throw new Error(error.message);
+  if (Platform.OS === 'web') {
+    throw new Error('Google sign-in requires the iOS or Android development build.');
   }
-  if (!data.url) {
-    throw new Error('Google sign-in URL was not returned.');
-  }
-
-  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-  if (result.type !== 'success') {
-    throw new Error('Google sign-in was cancelled.');
-  }
-
-  await createSessionFromUrl(result.url);
+  await signInWithGoogleNative();
 }
 
 export async function signOut(): Promise<void> {
+  if (Platform.OS !== 'web') {
+    await signOutGoogleNative();
+  }
   const supabase = getSupabaseClient();
   const { error } = await supabase.auth.signOut();
   if (error) {

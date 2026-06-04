@@ -1,12 +1,15 @@
-/** Auth / onboarding — aligned with design-system/dai1yl0g/MASTER.md */
+import { PlayfulColors } from '@/design/tokens';
+
+/** Auth / onboarding — re-export playful tokens for feature code. */
 export const AuthColors = {
-  primary: '#E11D48',
-  primaryMuted: '#FB7185',
-  background: '#FFF1F2',
-  text: '#881337',
-  textSecondary: '#9F1239',
-  surface: '#FFFFFF',
-  border: '#FECDD3',
-  error: '#DC2626',
-  cta: '#2563EB',
+  primary: PlayfulColors.primary,
+  primaryMuted: PlayfulColors.primaryMuted,
+  background: PlayfulColors.backgroundWarm,
+  text: PlayfulColors.ink,
+  textSecondary: PlayfulColors.inkMuted,
+  surface: PlayfulColors.surfaceElevated,
+  border: PlayfulColors.borderPink,
+  error: PlayfulColors.error,
+  cta: PlayfulColors.cta,
+  brand: PlayfulColors.brand,
 } as const;
