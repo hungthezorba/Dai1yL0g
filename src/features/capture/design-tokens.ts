@@ -1,12 +1,16 @@
-/** Dai1yL0g capture UI — from ui-ux-pro-max design system (rose + friendly). */
+import { PlayfulColors } from '@/design/tokens';
+
+/** Capture overlay — pink ring + teal accents on camera. */
 export const CaptureColors = {
-  primary: '#E11D48',
-  primaryMuted: '#FB7185',
-  onCameraText: '#FFFFFF',
-  overlay: 'rgba(0,0,0,0.45)',
-  timelineBg: 'rgba(0,0,0,0.55)',
-  success: '#22C55E',
-  warning: '#EAB308',
+  primary: PlayfulColors.primary,
+  primaryMuted: PlayfulColors.primaryMuted,
+  brand: PlayfulColors.brand,
+  frame: PlayfulColors.frame,
+  onCameraText: PlayfulColors.onDark,
+  overlay: 'rgba(17,17,17,0.42)',
+  timelineBg: 'rgba(17,17,17,0.72)',
+  success: PlayfulColors.success,
+  warning: PlayfulColors.warning,
 } as const;
 
 export const CaptureLayout = {

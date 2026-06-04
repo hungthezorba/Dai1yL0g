@@ -7,8 +7,8 @@
 ---
 
 **Project:** Dai1yL0g
-**Generated:** 2026-06-01 13:35:38
-**Category:** Social Media App
+**Generated:** 2026-06-02 16:26:13
+**Category:** Pet Tech App
 
 ---
 
@@ -28,14 +28,14 @@
 
 ### Typography
 
-- **Heading Font:** Caveat
-- **Body Font:** Quicksand
-- **Mood:** handwritten, personal, friendly, casual, warm, charming
-- **Google Fonts:** [Caveat + Quicksand](https://fonts.google.com/share?selection.family=Caveat:wght@400;500;600;700|Quicksand:wght@300;400;500;600;700)
+- **Heading Font:** Fredoka
+- **Body Font:** Nunito
+- **Mood:** playful, friendly, fun, creative, warm, approachable
+- **Google Fonts:** [Fredoka + Nunito](https://fonts.google.com/share?selection.family=Fredoka:wght@400;500;600;700|Nunito:wght@300;400;500;600;700)
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 ```
 
 ### Spacing Variables
@@ -153,28 +153,28 @@
 
 ## Style Guidelines
 
-**Style:** Vibrant & Block-based
+**Style:** Claymorphism
 
-**Keywords:** Bold, energetic, playful, block layout, geometric shapes, high color contrast, duotone, modern, energetic
+**Keywords:** Soft 3D, chunky, playful, toy-like, bubbly, thick borders (3-4px), double shadows, rounded (16-24px)
 
-**Best For:** Startups, creative agencies, gaming, social media, youth-focused, entertainment, consumer
+**Best For:** Educational apps, children's apps, SaaS platforms, creative tools, fun-focused, onboarding, casual games
 
-**Key Effects:** Large sections (48px+ gaps), animated patterns, bold hover (color shift), scroll-snap, large type (32px+), 200-300ms
+**Key Effects:** Inner+outer shadows (subtle, no hard lines), soft press (200ms ease-out), fluffy elements, smooth transitions
 
 ### Page Pattern
 
-**Pattern Name:** Waitlist/Coming Soon
+**Pattern Name:** Hero + Testimonials + CTA
 
-- **Conversion Strategy:** Scarcity + exclusivity. Show waitlist count. Early access benefits. Referral program.
-- **CTA Placement:** Email form prominent (above fold) + Sticky form on scroll
-- **Section Order:** 1. Hero with countdown, 2. Product teaser/preview, 3. Email capture form, 4. Social proof (waitlist count)
+- **Conversion Strategy:** Social proof before CTA. Use 3-5 testimonials. Include photo + name + role. CTA after social proof.
+- **CTA Placement:** Hero (sticky) + Post-testimonials
+- **Section Order:** 1. Hero, 2. Problem statement, 3. Solution overview, 4. Testimonials carousel, 5. CTA
 
 ---
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Heavy skeuomorphism
-- ❌ Accessibility ignored
+- ❌ Generic design
+- ❌ No personality
 
 ### Additional Forbidden Patterns
 
