@@ -1,5 +1,6 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
+import { clipUploadLog } from '@/features/clip/upload-logger';
 import { CLIP_UPLOAD_PROFILE } from '@/features/clip/upload-profile';
 
 /**
@@ -11,13 +12,16 @@ export async function compressClipForUpload(sourceUri: string, clipId: string): 
 
   try {
     const { compress } = await import('expo-image-and-video-compressor');
+    clipUploadLog.info('compress start', { clipId, sourceUri });
     const compressedUri = await compress(sourceUri, CLIP_UPLOAD_PROFILE.compressOptions);
     await FileSystem.copyAsync({ from: compressedUri, to: stagingPath });
     if (compressedUri !== stagingPath) {
       await FileSystem.deleteAsync(compressedUri, { idempotent: true });
     }
+    clipUploadLog.info('compress ok', { clipId, stagingPath });
     return stagingPath;
-  } catch {
+  } catch (err) {
+    clipUploadLog.warn('compress fallback to copy', { clipId, err });
     await FileSystem.copyAsync({ from: sourceUri, to: stagingPath });
     return stagingPath;
   }

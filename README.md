@@ -86,7 +86,7 @@ This is an [Expo](https://expo.dev) SDK 56 project created with [`create-expo-ap
 
    The iOS Google **URL scheme** is derived from `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` at prebuild. For **EAS Build**, set the same `EXPO_PUBLIC_*` vars in [Expo → Project → Environment variables](https://expo.dev/accounts) (`.env` is not uploaded).
 
-   Run [`supabase/migrations/001_profiles.sql`](supabase/migrations/001_profiles.sql) and [`supabase/migrations/002_clips_storage.sql`](supabase/migrations/002_clips_storage.sql), then **rebuild the dev client** (`eas build` or `expo run:ios` / `expo run:android`) so Google Sign-In, clip upload, and video compression natives are linked.
+   Run [`supabase/migrations/001_profiles.sql`](supabase/migrations/001_profiles.sql), [`002_clips_storage.sql`](supabase/migrations/002_clips_storage.sql), and [`003_clips_storage_rls_fix.sql`](supabase/migrations/003_clips_storage_rls_fix.sql), then **rebuild the dev client** (`eas build` or `expo run:ios` / `expo run:android`) so Google Sign-In, clip upload, and video compression natives are linked.
 
    Restart Metro (`npx expo start -c`). Sign in with Google → profile → **Camera** tab → record a clip; timeline shows **Posting…** then **Live** when upload succeeds.
 

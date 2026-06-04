@@ -28,7 +28,8 @@ After a clip is saved locally (US-002), compress with **ClipUploadProfile** v1, 
 
 ## Design Notes
 
-- SQL: `supabase/migrations/002_clips_storage.sql` (run after `001_profiles.sql`).
+- SQL: `001_profiles.sql`, `002_clips_storage.sql`, `003_clips_storage_rls_fix.sql`.
+- Metro logs: filter `[clip-upload]` for upload errors.
 - `src/features/clip/clip-upload-service.ts` — compress → storage → insert (parse-first Zod).
 - `src/infrastructure/media/clip-compressor.ts` — dynamic import of compressor; copy fallback per decision 0008.
 - `src/features/clip/hooks/use-clip-upload-queue.ts` — serial queue after auth session present.

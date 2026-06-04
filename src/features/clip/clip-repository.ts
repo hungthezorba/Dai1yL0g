@@ -9,7 +9,15 @@ const CLIPS_ROOT = `${FileSystem.documentDirectory ?? ''}dai1yl0g/clips/`;
 const INDEX_PATH = `${CLIPS_ROOT}index.json`;
 
 function createClipId(): string {
-  return globalThis.crypto?.randomUUID?.() ?? `clip-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+  // RFC4122 v4 fallback for Postgres uuid columns
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+    const random = (Math.random() * 16) | 0;
+    const value = char === 'x' ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
+  });
 }
 
 async function ensureClipsDirectory(): Promise<void> {
@@ -129,7 +137,12 @@ export async function getClipById(clipId: string): Promise<LocalClip | null> {
 
 export async function listClipsPendingUpload(): Promise<LocalClip[]> {
   const index = await readIndex();
-  return index.clips.filter((c) => c.uploadState === 'local_only' || c.uploadState === 'failed');
+  return index.clips.filter(
+    (c) =>
+      c.uploadState === 'local_only' ||
+      c.uploadState === 'failed' ||
+      c.uploadState === 'uploading',
+  );
 }
 
 export async function updateClipInIndex(

@@ -127,6 +127,11 @@ export function DayClipsStrip({ dayKey, clips, loading, onRetryUpload }: DayClip
                     {formatDuration(item.durationMs)}
                     {!item.hasAudio ? ' · muted' : ''}
                   </ThemedText>
+                  {item.uploadState === 'failed' && item.uploadError ? (
+                    <ThemedText type="small" style={styles.thumbError} numberOfLines={2}>
+                      {item.uploadError}
+                    </ThemedText>
+                  ) : null}
                 </View>
               </Pressable>
             );
@@ -224,5 +229,10 @@ const styles = StyleSheet.create({
   thumbDuration: {
     color: 'rgba(255,255,255,0.7)',
     fontSize: 10,
+  },
+  thumbError: {
+    color: PlayfulColors.primaryMuted,
+    fontSize: 9,
+    lineHeight: 12,
   },
 });

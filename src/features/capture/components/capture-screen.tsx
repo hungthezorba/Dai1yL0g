@@ -101,7 +101,13 @@ function CaptureScreenNative() {
   const cameraRef = useRef<CameraView>(null);
   const { status, requestPermissions } = useCapturePermissions();
   const { clips, loading, dayKey, refresh } = useTodayClips();
-  const { enqueueUpload, retryClip } = useClipUploadQueue({ onClipUpdated: () => void refresh() });
+  const onClipUpdated = useCallback(() => {
+    void refresh();
+  }, [refresh]);
+  const { enqueueUpload, retryClip } = useClipUploadQueue({
+    onClipUpdated,
+    active: isFocused,
+  });
   const [facing, setFacing] = useState<CameraType>('back');
   const [micEnabled, setMicEnabled] = useState(true);
   const [readyMs, setReadyMs] = useState<number | null>(null);
@@ -118,7 +124,8 @@ function CaptureScreenNative() {
     useCallback(() => {
       beginWarmup();
       void refresh();
-    }, [beginWarmup, refresh]),
+      enqueueUpload();
+    }, [beginWarmup, enqueueUpload, refresh]),
   );
 
   const { phase, errorMessage, startRecording, stopRecording, clearError } = useClipRecorder({
@@ -126,7 +133,7 @@ function CaptureScreenNative() {
     micEnabled,
     cameraReady,
     onClipSaved: () => {
-      void refresh();
+      onClipUpdated();
       enqueueUpload();
     },
   });
